@@ -1,0 +1,51 @@
+h1. MultiFileUpload
+
+At this stage, it's simply a javascript class that allows templated multi-file-upload functionality
+(a la Gmail).  No server-side helpers of any kind have been implemented yet, but this should be a very
+simple addition for rails.  In the meantime, the javascript object can be consumed very simply.  See
+the example below.
+
+h2. Sample Usage
+
+(in a rails view)
+
+<pre>
+
+  <% content_for :head do -%>
+    <%= javascript_include_tag "multi_file_upload" %>
+    <script type="text/javascript">
+      var NewJobState = {
+        file_upload: 0,
+        initializeMultiFileUpload: function() {
+          var item_template = "<input type=\"file\" name=\"job[attachments][][file]\" value=\"\" id=\"attachment#{index}\" class=\"file\" style=\"float: none;\" />";
+          var separator = "<br style='clear: both;' />";
+
+          this.file_upload = new MultiFileUpload("attachment_container", item_template, separator);
+          this.file_upload.drawInitialState();
+        }
+      };
+
+      Event.observe(window, 'load', NewJobState.initializeMultiFileUpload);
+    </script>
+  <% end -%>
+
+  .... later on down in the form
+  
+  <label>Add Attachments</label>
+  <div id="attachment_container" class="ctrl-holder">
+    This will be replaced on page load.
+  </div> <!-- [end] #attachment_container -->
+
+</pre>
+
+By passing in a template (<code>item_template</code> above), we're able to specify how we want the items laid out, what their id's/names should be, etc.  We have more or less full control.  This means that
+we're basically server-side independent.  The way I've coded the name attribute in the above example, the
+attachments would all be available as follows: 
+
+<pre>
+  var attachments = params[:job][:attachments]
+  attachments.each do |attachment|
+    file = attachment[:file]
+    # do what you want with the file
+  end
+</pre>
